@@ -1,0 +1,46 @@
+package visitor
+
+import (
+	"bytes"
+
+	"github.com/falconandy/strip-literal/types"
+)
+
+type stringVisitor struct {
+	*baseVisitor
+	definition    types.StringDefinition
+	codeFactory   types.CodeFactory
+	pendingPrefix []byte
+}
+
+func (s *stringVisitor) Visit(next, _ []byte) (types.SegmentVisitor, int) {
+	if len(s.pendingPrefix) > 0 {
+		pendingPrefix := s.pendingPrefix
+		s.pendingPrefix = nil
+
+		if bytes.HasPrefix(next, pendingPrefix) {
+			return s, s.TakePrefix(len(pendingPrefix))
+		}
+	}
+
+	if bytes.HasPrefix(next, s.definition.Postfix) {
+		return nil, s.TakePostfix(len(s.definition.Postfix))
+	}
+
+	for _, skip := range s.definition.Skip {
+		if bytes.HasPrefix(next, skip) {
+			return s, s.Take(len(skip))
+		}
+	}
+
+	if !s.definition.Multiline {
+		switch {
+		case len(next) >= 2 && ((next[0] == '\n' && next[1] == '\r') || (next[0] == '\r' && next[1] == '\n')):
+			return nil, s.Take(1)
+		case next[0] == '\n' || next[0] == '\r':
+			return nil, 0
+		}
+	}
+
+	return s, s.Take(1)
+}
