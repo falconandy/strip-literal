@@ -42,5 +42,16 @@ func (s *stringVisitor) Visit(next, _ []byte) (types.SegmentVisitor, int) {
 		}
 	}
 
+	if len(s.definition.TemplatePrefix) > 0 {
+		if bytes.HasPrefix(next, s.definition.TemplatePrefix) {
+			s.pendingPrefix = s.definition.TemplatePostfix
+
+			return s.codeFactory.CreateStringTemplateVisitor(
+					s.definition.TemplatePrefix,
+					s.definition.TemplatePostfix),
+				s.TakePostfix(len(s.definition.TemplatePrefix))
+		}
+	}
+
 	return s, s.Take(1)
 }

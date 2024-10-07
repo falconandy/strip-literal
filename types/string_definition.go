@@ -1,10 +1,12 @@
 package types
 
 type StringDefinition struct {
-	Prefixes  [][]byte
-	Postfix   []byte
-	Skip      [][]byte
-	Multiline bool
+	Prefixes        [][]byte
+	Postfix         []byte
+	Skip            [][]byte
+	Multiline       bool
+	TemplatePrefix  []byte
+	TemplatePostfix []byte
 }
 
 func NewSingleLineString(prefix string, prefixes ...string) StringDefinition {
@@ -48,6 +50,13 @@ func (d StringDefinition) WithSkip(skip ...string) StringDefinition {
 	}
 
 	d.Skip = byteSkips
+
+	return d
+}
+
+func (d StringDefinition) WithTemplate(templatePrefix, templatePostfix string) StringDefinition {
+	d.TemplatePrefix = []byte(templatePrefix)
+	d.TemplatePostfix = []byte(templatePostfix)
 
 	return d
 }

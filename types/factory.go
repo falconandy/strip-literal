@@ -7,8 +7,10 @@ type VisitorFactory interface {
 
 type CodeFactory interface {
 	VisitorFactory
+	CreateStringTemplateVisitor(templatePrefix, templatePostfix []byte) SegmentVisitor
 }
 
 type StringFactory interface {
 	VisitorFactory
+	SetTemplateCodeFactory(codeFactory CodeFactory)
 }

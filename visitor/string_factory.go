@@ -43,6 +43,10 @@ func (f *stringFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {
 	}
 }
 
+func (f *stringFactory) SetTemplateCodeFactory(codeFactory types.CodeFactory) {
+	f.codeFactory = codeFactory
+}
+
 func (f *stringFactory) findDefinition(prefix []byte) types.StringDefinition {
 	for _, definition := range f.definitions {
 		for _, s := range definition.Prefixes {
@@ -53,9 +57,11 @@ func (f *stringFactory) findDefinition(prefix []byte) types.StringDefinition {
 	}
 
 	return types.StringDefinition{
-		Prefixes:  nil,
-		Postfix:   nil,
-		Skip:      nil,
-		Multiline: false,
+		Prefixes:        nil,
+		Postfix:         nil,
+		Skip:            nil,
+		Multiline:       false,
+		TemplatePrefix:  nil,
+		TemplatePostfix: nil,
 	}
 }

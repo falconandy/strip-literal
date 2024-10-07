@@ -1,14 +1,18 @@
 package visitor
 
 import (
+	"bytes"
+
 	"github.com/falconandy/strip-literal/types"
 )
 
 type codeVisitor struct {
 	*baseVisitor
-	f              *codeFactory
-	factories      []types.VisitorFactory
-	nestedBrackets [][]int
+	f               *codeFactory
+	factories       []types.VisitorFactory
+	templatePrefix  []byte
+	templatePostfix []byte
+	nestedBrackets  [][]int
 }
 
 type bracketPair struct {
@@ -28,6 +32,26 @@ func (s *codeVisitor) Visit(next, prev []byte) (types.SegmentVisitor, int) {
 	bestFactory, bestPrefix := s.findBestFactory(next, prev)
 	if bestFactory != nil {
 		return bestFactory.CreateVisitor(bestPrefix), len(bestPrefix)
+	}
+
+	if len(s.templatePostfix) > 0 && bytes.HasPrefix(next, s.templatePostfix) {
+		isClosingBracket := false
+
+		if len(s.templatePostfix) == 1 &&
+			(s.templatePostfix[0] == ']' || s.templatePostfix[0] == ')' || s.templatePostfix[0] == '}') {
+			switch {
+			case s.templatePostfix[0] == ']' && len(s.nestedBrackets[squareBracketIndex]) > 0:
+				isClosingBracket = true
+			case s.templatePostfix[0] == ')' && len(s.nestedBrackets[parenthesesIndex]) > 0:
+				isClosingBracket = true
+			case s.templatePostfix[0] == '}' && len(s.nestedBrackets[curlyBracketIndex]) > 0:
+				isClosingBracket = true
+			}
+		}
+
+		if !isClosingBracket {
+			return nil, 0
+		}
 	}
 
 	switch next[0] {
