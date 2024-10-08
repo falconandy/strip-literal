@@ -14,6 +14,7 @@ const (
 	LangGo         Language = "go"
 	LangJavaScript Language = "javascript"
 	LangTypeScript Language = "typescript"
+	LangJava       Language = "java"
 )
 
 type Mode int
@@ -38,6 +39,8 @@ func StripLiterals(code []byte, language Language, options Options) int32 {
 		codeFactory = lang.NewGoFactory()
 	case LangJavaScript, LangTypeScript:
 		codeFactory = lang.NewJavaScriptFactory()
+	case LangJava:
+		codeFactory = lang.NewJavaFactory()
 	default:
 		return int32(len(code))
 	}

@@ -5,6 +5,7 @@ Strip comments and string literals from source code (utf-8 encoding).
 Supported languages:
 * Go
 * JavaScript/TypeScript (JSX syntax not supported)
+* Java
 
 ## Usage
 
