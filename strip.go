@@ -16,6 +16,7 @@ const (
 	LangTypeScript Language = "typescript"
 	LangJava       Language = "java"
 	LangKotlin     Language = "kotlin"
+	LangPython     Language = "python"
 )
 
 type Mode int
@@ -44,6 +45,8 @@ func StripLiterals(code []byte, language Language, options Options) int32 {
 		codeFactory = lang.NewJavaFactory()
 	case LangKotlin:
 		codeFactory = lang.NewKotlinFactory()
+	case LangPython:
+		codeFactory = lang.NewPythonFactory()
 	default:
 		return int32(len(code))
 	}

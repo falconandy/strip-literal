@@ -7,6 +7,7 @@ Supported languages:
 * JavaScript/TypeScript (JSX syntax not supported)
 * Java
 * Kotlin
+* Python
 
 ## Usage
 
