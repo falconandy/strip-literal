@@ -6,6 +6,7 @@ Supported languages:
 * Go
 * JavaScript/TypeScript (JSX syntax not supported)
 * Java
+* Kotlin
 
 ## Usage
 
