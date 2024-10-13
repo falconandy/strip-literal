@@ -7,6 +7,7 @@ import (
 
 func NewGoFactory() types.CodeFactory {
 	literalStringFactory := visitor.NewStringFactory(
+		types.NewSingleLineString(`'`).WithPostfix(`'`).WithSkip(`\'`, `\\`),
 		types.NewSingleLineString(`"`).WithPostfix(`"`).WithSkip(`\"`, `\\`),
 		types.NewMultiLineString("`").WithPostfix("`"),
 	)
