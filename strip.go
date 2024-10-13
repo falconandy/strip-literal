@@ -19,7 +19,7 @@ const (
 	LangPython     Language = "python"
 )
 
-type Mode int
+type Mode uint8
 
 const (
 	None = iota
