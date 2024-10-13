@@ -9,6 +9,8 @@ Supported languages:
 * Kotlin
 * Python
 
+[Online demo](https://falconandy.github.io/strip-literal/) (WASM version, compiled by TinyGo 0.33)
+
 ## Usage
 
 ```go
