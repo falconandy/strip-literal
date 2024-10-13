@@ -48,7 +48,6 @@ function stripLiterals() {
     const stringsMode = +document.getElementById("strings").value;
     const stripMode = stringsMode*4 + commentsMode;
  
-    console.log(language, stripMode);   
     const [codePtr, codeSize] = writeString(document.getElementById("source").value);
     try {
         const resultSize = wasm.exports.stripLiterals(codePtr, codeSize, language, stripMode);
