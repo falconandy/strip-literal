@@ -11,6 +11,8 @@ type regexpVisitor struct {
 
 func (s *regexpVisitor) Visit(next, _ []byte) (types.SegmentVisitor, int) {
 	switch {
+	case next[0] == '\n' || next[0] == '\r':
+		return nil, 0
 	case len(next) >= 2 && next[0] == '\\' && next[1] == '/':
 		return s, s.Take(2)
 	case len(next) >= 2 && next[0] == '\\' && next[1] == '[':

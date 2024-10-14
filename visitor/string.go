@@ -34,10 +34,7 @@ func (s *stringVisitor) Visit(next, _ []byte) (types.SegmentVisitor, int) {
 	}
 
 	if !s.definition.Multiline {
-		switch {
-		case len(next) >= 2 && ((next[0] == '\n' && next[1] == '\r') || (next[0] == '\r' && next[1] == '\n')):
-			return nil, s.Take(1)
-		case next[0] == '\n' || next[0] == '\r':
+		if next[0] == '\n' || next[0] == '\r' {
 			return nil, 0
 		}
 	}
