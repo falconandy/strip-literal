@@ -8,6 +8,7 @@ Supported languages:
 * Java
 * Kotlin
 * Python
+* C#
 
 [Online demo](https://falconandy.github.io/strip-literal/) (WASM version, compiled by TinyGo 0.33)
 

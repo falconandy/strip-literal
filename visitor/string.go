@@ -23,10 +23,6 @@ func (s *stringVisitor) Visit(next, _ []byte) (types.SegmentVisitor, int) {
 		}
 	}
 
-	if bytes.HasPrefix(next, s.definition.Postfix) {
-		return nil, s.TakePostfix(len(s.definition.Postfix))
-	}
-
 	for _, skip := range s.definition.Skip {
 		if bytes.HasPrefix(next, skip) {
 			return s, s.Take(len(skip))
@@ -37,6 +33,10 @@ func (s *stringVisitor) Visit(next, _ []byte) (types.SegmentVisitor, int) {
 		if next[0] == '\n' || next[0] == '\r' {
 			return nil, 0
 		}
+	}
+
+	if bytes.HasPrefix(next, s.definition.Postfix) {
+		return nil, s.TakePostfix(len(s.definition.Postfix))
 	}
 
 	if len(s.definition.TemplatePrefix) > 0 {
