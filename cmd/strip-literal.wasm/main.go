@@ -16,6 +16,8 @@ var languages = []strip.Language{
 	strip.LangKotlin,
 	strip.LangPython,
 	strip.LangCSharp,
+	strip.LangHTML,
+	strip.LangCSS,
 }
 
 //export stripLiterals

@@ -18,6 +18,8 @@ const (
 	LangKotlin     Language = "kotlin"
 	LangPython     Language = "python"
 	LangCSharp     Language = "csharp"
+	LangHTML       Language = "html"
+	LangCSS        Language = "css"
 )
 
 type Mode uint8
@@ -50,6 +52,10 @@ func StripLiterals(code []byte, language Language, options Options) int32 {
 		codeFactory = lang.NewPythonFactory()
 	case LangCSharp:
 		codeFactory = lang.NewCSharpFactory()
+	case LangHTML:
+		codeFactory = lang.NewHTMLFactory()
+	case LangCSS:
+		codeFactory = lang.NewCSSFactory()
 	default:
 		return int32(len(code))
 	}
