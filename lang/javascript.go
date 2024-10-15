@@ -7,8 +7,8 @@ import (
 
 func NewJavaScriptFactory() types.CodeFactory {
 	literalStringFactory := visitor.NewStringFactory(
-		types.NewSingleLineString(`"`).WithPostfix(`"`).WithSkip(`\"`, `\\`, "\\\n"),
-		types.NewSingleLineString("'").WithPostfix("'").WithSkip(`\'`, `\\`, "\\\n"),
+		types.NewSingleLineString(`"`).WithPostfix(`"`).WithSkip(`\"`, `\\`, "\\\n\r", "\\\r\n", "\\\n", "\\\r"),
+		types.NewSingleLineString("'").WithPostfix("'").WithSkip(`\'`, `\\`, "\\\n\r", "\\\r\n", "\\\n", "\\\r"),
 		types.NewMultiLineString("`").WithPostfix("`").WithSkip("\\`", `\u{`, `\$`).WithTemplate("${", "}"),
 	)
 	literalRegexpFactory := visitor.NewRegexpFactory()

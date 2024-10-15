@@ -8,9 +8,9 @@ import (
 func NewPythonFactory() types.CodeFactory {
 	literalStringFactory := visitor.NewStringFactory(
 		types.NewSingleLineString(`"`, `u"`, `U"`, `b"`, `B"`).
-			WithPostfix(`"`).WithSkip(`\"`, `\\`, "\\\n"),
+			WithPostfix(`"`).WithSkip(`\"`, `\\`, "\\\n\r", "\\\r\n", "\\\n", "\\\r"),
 		types.NewSingleLineString(`'`, `u'`, `U'`, `b'`, `B'`).
-			WithPostfix(`'`).WithSkip(`\'`, `\\`, "\\\n"),
+			WithPostfix(`'`).WithSkip(`\'`, `\\`, "\\\n\r", "\\\r\n", "\\\n", "\\\r"),
 		types.NewMultiLineString(`"""`, `u"""`, `U"""`, `b"""`, `B"""`).
 			WithPostfix(`"""`),
 		types.NewMultiLineString(`'''`, `u'''`, `U'''`, `b'''`, `B'''`).
@@ -24,10 +24,10 @@ func NewPythonFactory() types.CodeFactory {
 		types.NewMultiLineString(`r'''`, `R'''`, `br'''`, `bR'''`, `Br'''`, `BR'''`, `rb'''`, `rB'''`, `Rb'''`, `RB'''`).
 			WithPostfix(`'''`),
 		types.NewSingleLineString(`f"`, `F"`).
-			WithPostfix(`"`).WithSkip(`\"`, `\\`, "\\\n").
+			WithPostfix(`"`).WithSkip(`\"`, `\\`, "\\\n\r", "\\\r\n", "\\\n", "\\\r").
 			WithTemplate("{", "}"),
 		types.NewSingleLineString(`f'`, `F'`).
-			WithPostfix(`'`).WithSkip(`\'`, `\\`, "\\\n").
+			WithPostfix(`'`).WithSkip(`\'`, `\\`, "\\\n\r", "\\\r\n", "\\\n", "\\\r").
 			WithTemplate("{", "}"),
 		types.NewMultiLineString(`f"""`, `F"""`).
 			WithPostfix(`"""`).
