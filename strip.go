@@ -20,6 +20,7 @@ const (
 	LangCSharp     Language = "csharp"
 	LangHTML       Language = "html"
 	LangCSS        Language = "css"
+	LangCPP        Language = "cpp"
 )
 
 type Mode uint8
@@ -56,6 +57,8 @@ func StripLiterals(code []byte, language Language, options Options) int32 {
 		codeFactory = lang.NewHTMLFactory()
 	case LangCSS:
 		codeFactory = lang.NewCSSFactory()
+	case LangCPP:
+		codeFactory = lang.NewCPPFactory()
 	default:
 		return int32(len(code))
 	}

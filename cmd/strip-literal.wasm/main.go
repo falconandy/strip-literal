@@ -18,6 +18,7 @@ var languages = []strip.Language{
 	strip.LangCSharp,
 	strip.LangHTML,
 	strip.LangCSS,
+	strip.LangCPP,
 }
 
 //export stripLiterals
