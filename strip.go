@@ -25,7 +25,7 @@ const (
 type Mode uint8
 
 const (
-	None = iota
+	None Mode = iota
 	Remove
 	ByteToSpace
 	RuneToSpace
