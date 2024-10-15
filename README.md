@@ -12,6 +12,7 @@ Supported languages:
 * HTML (comments). Not supported: strip in internal JavaScript/CSS.
 * CSS (comments)
 * C++
+* C
 
 [Online demo](https://falconandy.github.io/strip-literal/) (WASM version, compiled by TinyGo 0.33)
 
