@@ -20,6 +20,7 @@ var languages = []strip.Language{
 	strip.LangCSS,
 	strip.LangCPP,
 	strip.LangC,
+	strip.LangSwift,
 }
 
 //export stripLiterals
