@@ -1,7 +1,7 @@
 package types
 
 type VisitorFactory interface {
-	BestPrefix(next, prev []byte) []byte
+	BestPrefixLen(next, prev []byte) int
 	CreateVisitor(prefix []byte) SegmentVisitor
 }
 

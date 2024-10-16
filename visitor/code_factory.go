@@ -24,8 +24,8 @@ type codeFactory struct {
 	brackets  []bracketPair
 }
 
-func (f *codeFactory) BestPrefix([]byte, []byte) []byte {
-	return nil
+func (f *codeFactory) BestPrefixLen([]byte, []byte) int {
+	return 0
 }
 
 func (f *codeFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {

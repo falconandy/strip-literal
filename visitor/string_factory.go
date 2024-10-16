@@ -18,18 +18,18 @@ type stringFactory struct {
 	codeFactory types.CodeFactory
 }
 
-func (f *stringFactory) BestPrefix(next, _ []byte) []byte {
-	var bestPrefix []byte
+func (f *stringFactory) BestPrefixLen(next, _ []byte) int {
+	var bestPrefixLen int
 
 	for _, definition := range f.definitions {
 		for _, prefix := range definition.Prefixes {
-			if bytes.HasPrefix(next, prefix) && len(bestPrefix) < len(prefix) {
-				bestPrefix = prefix
+			if bytes.HasPrefix(next, prefix) && bestPrefixLen < len(prefix) {
+				bestPrefixLen = len(prefix)
 			}
 		}
 	}
 
-	return bestPrefix
+	return bestPrefixLen
 }
 
 func (f *stringFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {

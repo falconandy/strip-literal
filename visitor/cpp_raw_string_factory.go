@@ -21,7 +21,7 @@ func NewCPPRawStringFactory() types.VisitorFactory {
 type cppRawStringFactory struct {
 }
 
-func (f *cppRawStringFactory) BestPrefix(next, _ []byte) []byte {
+func (f *cppRawStringFactory) BestPrefixLen(next, _ []byte) int {
 	var bestPrefix []byte
 	for _, prefix := range cppRawStringPrefixes {
 		if bytes.HasPrefix(next, prefix) {
@@ -31,15 +31,15 @@ func (f *cppRawStringFactory) BestPrefix(next, _ []byte) []byte {
 	}
 
 	if len(bestPrefix) == 0 {
-		return nil
+		return 0
 	}
 
 	index := bytes.IndexByte(next, '(')
 	if index < 0 {
-		return nil
+		return 0
 	}
 
-	return next[:index+1]
+	return index + 1
 }
 
 func (f *cppRawStringFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {

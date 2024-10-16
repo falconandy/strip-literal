@@ -20,26 +20,26 @@ type swiftStringFactory struct {
 	codeFactory types.CodeFactory
 }
 
-func (f *swiftStringFactory) BestPrefix(next, _ []byte) []byte {
+func (f *swiftStringFactory) BestPrefixLen(next, _ []byte) int {
 	if next[0] == '"' {
 		if len(next) >= 3 && next[1] == '"' && next[2] == '"' {
-			return next[:3]
+			return 3
 		}
-		return next[:1]
+		return 1
 	}
 
 	if next[0] != '#' {
-		return nil
+		return 0
 	}
 
 	index := bytes.IndexByte(next, '"')
 	if index < 0 {
-		return nil
+		return 0
 	}
 
 	for i := range index - 1 {
 		if next[i+1] != '#' {
-			return nil
+			return 0
 		}
 	}
 
@@ -51,7 +51,7 @@ func (f *swiftStringFactory) BestPrefix(next, _ []byte) []byte {
 		index++
 	}
 
-	return next[:index+1]
+	return index + 1
 }
 
 func (f *swiftStringFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {

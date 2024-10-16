@@ -29,9 +29,9 @@ const (
 )
 
 func (s *codeVisitor) Visit(next, prev []byte) (types.SegmentVisitor, int) {
-	bestFactory, bestPrefix := s.findBestFactory(next, prev)
+	bestFactory, bestPrefixLen := s.findBestFactory(next, prev)
 	if bestFactory != nil {
-		return bestFactory.CreateVisitor(bestPrefix), len(bestPrefix)
+		return bestFactory.CreateVisitor(next[:bestPrefixLen]), bestPrefixLen
 	}
 
 	if len(s.templatePostfix) > 0 && bytes.HasPrefix(next, s.templatePostfix) {
@@ -90,19 +90,19 @@ func (s *codeVisitor) closeBracket(bracketIndex BracketIndex, prev []byte) {
 	}
 }
 
-func (s *codeVisitor) findBestFactory(next, prev []byte) (types.VisitorFactory, []byte) {
+func (s *codeVisitor) findBestFactory(next, prev []byte) (types.VisitorFactory, int) {
 	var (
-		bestFactory types.VisitorFactory
-		bestPrefix  []byte
+		bestFactory   types.VisitorFactory
+		bestPrefixLen int
 	)
 
 	for _, factory := range s.factories {
-		prefix := factory.BestPrefix(next, prev)
-		if len(prefix) > len(bestPrefix) {
+		prefixLen := factory.BestPrefixLen(next, prev)
+		if prefixLen > bestPrefixLen {
 			bestFactory = factory
-			bestPrefix = prefix
+			bestPrefixLen = prefixLen
 		}
 	}
 
-	return bestFactory, bestPrefix
+	return bestFactory, bestPrefixLen
 }

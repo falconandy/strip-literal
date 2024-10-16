@@ -16,12 +16,12 @@ type singleLineFactory struct {
 	prefix []byte
 }
 
-func (f *singleLineFactory) BestPrefix(next, _ []byte) []byte {
+func (f *singleLineFactory) BestPrefixLen(next, _ []byte) int {
 	if bytes.HasPrefix(next, f.prefix) {
-		return f.prefix
+		return len(f.prefix)
 	}
 
-	return nil
+	return 0
 }
 
 func (f *singleLineFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {
@@ -44,12 +44,12 @@ type multiLineCommentFactory struct {
 	supportsNesting bool
 }
 
-func (f *multiLineCommentFactory) BestPrefix(next, _ []byte) []byte {
+func (f *multiLineCommentFactory) BestPrefixLen(next, _ []byte) int {
 	if bytes.HasPrefix(next, f.prefix) {
-		return f.prefix
+		return len(f.prefix)
 	}
 
-	return nil
+	return 0
 }
 
 func (f *multiLineCommentFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {

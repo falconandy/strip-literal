@@ -12,22 +12,22 @@ func NewRegexpFactory() types.VisitorFactory {
 
 type regexpFactory struct{}
 
-func (f *regexpFactory) BestPrefix(next, prev []byte) []byte {
+func (f *regexpFactory) BestPrefixLen(next, prev []byte) int {
 	if next[0] != '/' {
-		return nil
+		return 0
 	}
 
 	prev = bytes.TrimRight(prev, " \t\f")
 	if len(prev) == 0 {
-		return nil
+		return 0
 	}
 
 	switch prev[len(prev)-1] {
 	case '=', ',', ';', '(', '{', '}':
-		return next[:1]
+		return 1
 	}
 
-	return nil
+	return 0
 }
 
 func (f *regexpFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {
