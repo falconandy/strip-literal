@@ -24,7 +24,7 @@ var languages = []strip.Language{
 
 //export stripLiterals
 func _stripLiterals(codePtr, codeSize, languageIndex, stripModes uint32) (count uint32) {
-	if languageIndex >= uint32(len(languages)) {
+	if languageIndex < 1 || languageIndex > uint32(len(languages)) {
 		return codeSize
 	}
 
@@ -32,7 +32,7 @@ func _stripLiterals(codePtr, codeSize, languageIndex, stripModes uint32) (count 
 	stringsMode := (stripModes / 4) % 4
 
 	code := ptrToBytes(codePtr, codeSize)
-	count = uint32(stripLiterals(code, languages[languageIndex], strip.Mode(commentsMode), strip.Mode(stringsMode)))
+	count = uint32(stripLiterals(code, languages[languageIndex-1], strip.Mode(commentsMode), strip.Mode(stringsMode)))
 	return count
 }
 
