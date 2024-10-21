@@ -30,9 +30,8 @@ func (f *regexpFactory) BestPrefixLen(next, prev []byte) int {
 	return 0
 }
 
-func (f *regexpFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {
+func (f *regexpFactory) CreateVisitor([]byte, []byte) types.SegmentVisitor {
 	return &regexpVisitor{
-		baseVisitor:        newBaseVisitor(types.SegmentTypeRegexp, len(prefix)),
 		squareBracketLevel: 0,
 	}
 }

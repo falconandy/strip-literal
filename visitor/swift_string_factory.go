@@ -7,9 +7,11 @@ import (
 )
 
 var (
-	swiftTemplatePostfix      = []byte(")")
-	swiftSingleLineStringSkip = [][]byte{[]byte(`\"`), []byte(`\\`)}
-	swiftMultiLineStringSkip  = [][]byte{[]byte(`\"`), []byte(`\\`), []byte("\\\n\r"), []byte("\\\r\n"), []byte("\\\n"), []byte("\\\r")}
+	swiftTemplatePrefixPrefix  = []byte{'\\'}
+	swiftTemplatePrefixPostfix = []byte{'('}
+	swiftTemplatePostfix       = []byte(")")
+	swiftSingleLineStringSkip  = [][]byte{[]byte("\\\""), []byte("\\\\")}
+	swiftMultiLineStringSkip   = [][]byte{[]byte("\\\""), []byte("\\\\"), []byte("\\\n\r"), []byte("\\\r\n"), []byte("\\\n"), []byte("\\\r")}
 )
 
 func NewSwiftStringFactory() types.StringFactory {
@@ -43,18 +45,14 @@ func (f *swiftStringFactory) BestPrefixLen(next, _ []byte) int {
 		}
 	}
 
-	if index+1 < len(next) && next[index+1] == '"' {
-		index++
-	}
-
-	if index+1 < len(next) && next[index+1] == '"' {
-		index++
+	if index+2 < len(next) && next[index+1] == '"' && next[index+2] == '"' {
+		return index + 3
 	}
 
 	return index + 1
 }
 
-func (f *swiftStringFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {
+func (f *swiftStringFactory) CreateVisitor(prefix, next []byte) types.SegmentVisitor {
 	multiline := len(prefix) >= 3 && prefix[len(prefix)-1] == '"' && prefix[len(prefix)-2] == '"' && prefix[len(prefix)-3] == '"'
 
 	skip := swiftSingleLineStringSkip
@@ -62,28 +60,29 @@ func (f *swiftStringFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {
 		skip = swiftMultiLineStringSkip
 	}
 
-	postfix := make([]byte, len(prefix))
+	var postfix []byte
 	var templatePrefix []byte
 	if multiline {
-		copy(postfix, prefix[len(prefix)-3:])
-		copy(postfix[3:], prefix[:len(prefix)-3])
-
-		templatePrefix = make([]byte, 2+len(prefix)-3)
-		templatePrefix[0] = '\\'
-		copy(templatePrefix[1:], prefix[:len(prefix)-3])
-		templatePrefix[len(templatePrefix)-1] = '('
+		postfixIndex := FindSubData(next, prefix[len(prefix)-3:], nil, prefix[:len(prefix)-3])
+		if postfixIndex >= 0 {
+			postfix = next[postfixIndex : postfixIndex+len(prefix)]
+		}
+		templatePrefixIndex := FindSubData(next, swiftTemplatePrefixPrefix, prefix[:len(prefix)-3], swiftTemplatePrefixPostfix)
+		if templatePrefixIndex >= 0 {
+			templatePrefix = next[templatePrefixIndex : templatePrefixIndex+len(prefix)-1]
+		}
 	} else {
-		copy(postfix, prefix[len(prefix)-1:])
-		copy(postfix[1:], prefix[:len(prefix)-1])
-
-		templatePrefix = make([]byte, 2+len(prefix)-1)
-		templatePrefix[0] = '\\'
-		copy(templatePrefix[1:], prefix[:len(prefix)-1])
-		templatePrefix[len(templatePrefix)-1] = '('
+		postfixIndex := FindSubData(next, prefix[len(prefix)-1:], nil, prefix[:len(prefix)-1])
+		if postfixIndex >= 0 {
+			postfix = next[postfixIndex : postfixIndex+len(prefix)]
+		}
+		templatePrefixIndex := FindSubData(next, swiftTemplatePrefixPrefix, prefix[:len(prefix)-1], swiftTemplatePrefixPostfix)
+		if templatePrefixIndex >= 0 {
+			templatePrefix = next[templatePrefixIndex : templatePrefixIndex+len(prefix)+1]
+		}
 	}
 
 	return &stringVisitor{
-		baseVisitor: newBaseVisitor(types.SegmentTypeString, len(prefix)),
 		definition: types.StringDefinition{
 			Prefixes:        [][]byte{prefix},
 			Postfix:         postfix,

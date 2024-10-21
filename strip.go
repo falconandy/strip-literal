@@ -78,34 +78,39 @@ func StripLiterals(code []byte, language Language, options Options) int32 {
 
 func stripLiterals(code []byte, codeFactory types.CodeFactory, options Options) int32 {
 	var processed int32
+	var position int32
 
 	segments := parser.ParseBytes(codeFactory, code)
 	for _, segment := range segments {
+		segmentLength := segment.Length()
+
 		switch {
 		case options.Comments != None && segment.IsComment():
-			processed = moveBytes(code, processed, segment.Position, segment.Length, options.Comments)
+			processed = moveBytes(code, processed, position, segmentLength, options.Comments)
 		case options.Strings != None && segment.IsString():
-			processed = copyBytes(code, processed, segment.Position, segment.PrefixLength)
+			processed = copyBytes(code, processed, position, segment.PrefixLength)
 			processed = moveBytes(code, processed,
-				segment.Position+segment.PrefixLength, segment.Length-segment.PostfixLength-segment.PrefixLength,
+				position+segment.PrefixLength, segment.InnerLength,
 				options.Strings)
-			processed = copyBytes(code, processed, segment.Position+segment.Length-segment.PostfixLength, segment.PostfixLength)
+			processed = copyBytes(code, processed, position+segment.PrefixLength+segment.InnerLength, segment.PostfixLength)
 		case options.Strings != None && segment.IsRegexp():
-			processed = copyBytes(code, processed, segment.Position, segment.PrefixLength)
+			processed = copyBytes(code, processed, position, segment.PrefixLength)
 			prevProcessed := processed
 
 			processed = moveBytes(code, processed,
-				segment.Position+segment.PrefixLength, segment.Length-segment.PostfixLength-segment.PrefixLength,
+				position+segment.PrefixLength, segment.InnerLength,
 				options.Strings)
-			if prevProcessed == processed && segment.Length-segment.PrefixLength-segment.PostfixLength > 0 {
+			if prevProcessed == processed && segment.InnerLength > 0 {
 				code[processed] = ' '
 				processed++
 			}
 
-			processed = copyBytes(code, processed, segment.Position+segment.Length-segment.PostfixLength, segment.PostfixLength)
+			processed = copyBytes(code, processed, position+segment.PrefixLength+segment.InnerLength, segment.PostfixLength)
 		default:
-			processed = copyBytes(code, processed, segment.Position, segment.Length)
+			processed = copyBytes(code, processed, position, segmentLength)
 		}
+
+		position += segmentLength
 	}
 
 	return processed

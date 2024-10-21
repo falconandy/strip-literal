@@ -7,7 +7,6 @@ import (
 func NewCodeFactory(factories ...types.VisitorFactory) types.CodeFactory {
 	factory := &codeFactory{
 		factories: factories,
-		brackets:  nil,
 	}
 
 	for _, f := range factories {
@@ -21,35 +20,26 @@ func NewCodeFactory(factories ...types.VisitorFactory) types.CodeFactory {
 
 type codeFactory struct {
 	factories []types.VisitorFactory
-	brackets  []bracketPair
 }
 
 func (f *codeFactory) BestPrefixLen([]byte, []byte) int {
 	return 0
 }
 
-func (f *codeFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {
+func (f *codeFactory) CreateVisitor([]byte, []byte) types.SegmentVisitor {
 	return &codeVisitor{
-		baseVisitor:     newBaseVisitor(types.SegmentTypeCode, len(prefix)),
 		f:               f,
 		factories:       f.factories,
-		nestedBrackets:  make([][]int, curlyBracketIndex+1),
-		templatePrefix:  nil,
+		nestedBrackets:  [curlyBracketIndex + 1]int{},
 		templatePostfix: nil,
 	}
 }
 
-func (f *codeFactory) CreateStringTemplateVisitor(templatePrefix, templatePostfix []byte) types.SegmentVisitor {
+func (f *codeFactory) CreateStringTemplateVisitor(templatePostfix []byte) types.SegmentVisitor {
 	return &codeVisitor{
-		baseVisitor:     newBaseVisitor(types.SegmentTypeCode, 0),
 		f:               f,
 		factories:       f.factories,
-		nestedBrackets:  make([][]int, curlyBracketIndex+1),
-		templatePrefix:  templatePrefix,
+		nestedBrackets:  [curlyBracketIndex + 1]int{},
 		templatePostfix: templatePostfix,
 	}
-}
-
-func (f *codeFactory) Brackets() []bracketPair {
-	return f.brackets
 }

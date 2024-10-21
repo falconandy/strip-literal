@@ -42,15 +42,11 @@ func (f *cppRawStringFactory) BestPrefixLen(next, _ []byte) int {
 	return index + 1
 }
 
-func (f *cppRawStringFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {
+func (f *cppRawStringFactory) CreateVisitor(prefix []byte, _ []byte) types.SegmentVisitor {
 	index := bytes.IndexByte(prefix, '"')
-	postfix := make([]byte, len(prefix)-index)
-	postfix[0] = ')'
-	copy(postfix[1:], prefix[index+1:len(prefix)-1])
-	postfix[len(postfix)-1] = '"'
+	postfix := prefix[index+1 : len(prefix)-1]
 
 	return &cppRawStringVisitor{
-		baseVisitor: newBaseVisitor(types.SegmentTypeString, len(prefix)),
-		postfix:     postfix,
+		postfix: postfix,
 	}
 }

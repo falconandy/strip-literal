@@ -7,17 +7,10 @@ import (
 )
 
 type codeVisitor struct {
-	*baseVisitor
 	f               *codeFactory
 	factories       []types.VisitorFactory
-	templatePrefix  []byte
 	templatePostfix []byte
-	nestedBrackets  [][]int
-}
-
-type bracketPair struct {
-	OpenedAt int32
-	ClosedAt int32
+	nestedBrackets  [3]int
 }
 
 type BracketIndex int
@@ -28,10 +21,10 @@ const (
 	curlyBracketIndex  BracketIndex = 2
 )
 
-func (s *codeVisitor) Visit(next, prev []byte) (types.SegmentVisitor, int) {
+func (s *codeVisitor) Visit(next, prev []byte) (types.SegmentVisitor, types.VisitResult) {
 	bestFactory, bestPrefixLen := s.findBestFactory(next, prev)
 	if bestFactory != nil {
-		return bestFactory.CreateVisitor(next[:bestPrefixLen]), bestPrefixLen
+		return bestFactory.CreateVisitor(next[:bestPrefixLen], next[bestPrefixLen:]), types.VisitResult{PrefixLength: bestPrefixLen}
 	}
 
 	if len(s.templatePostfix) > 0 && bytes.HasPrefix(next, s.templatePostfix) {
@@ -40,53 +33,49 @@ func (s *codeVisitor) Visit(next, prev []byte) (types.SegmentVisitor, int) {
 		if len(s.templatePostfix) == 1 &&
 			(s.templatePostfix[0] == ']' || s.templatePostfix[0] == ')' || s.templatePostfix[0] == '}') {
 			switch {
-			case s.templatePostfix[0] == ']' && len(s.nestedBrackets[squareBracketIndex]) > 0:
+			case s.templatePostfix[0] == ']' && s.nestedBrackets[squareBracketIndex] > 0:
 				isClosingBracket = true
-			case s.templatePostfix[0] == ')' && len(s.nestedBrackets[parenthesesIndex]) > 0:
+			case s.templatePostfix[0] == ')' && s.nestedBrackets[parenthesesIndex] > 0:
 				isClosingBracket = true
-			case s.templatePostfix[0] == '}' && len(s.nestedBrackets[curlyBracketIndex]) > 0:
+			case s.templatePostfix[0] == '}' && s.nestedBrackets[curlyBracketIndex] > 0:
 				isClosingBracket = true
 			}
 		}
 
 		if !isClosingBracket {
-			return nil, 0
+			return nil, types.VisitResult{}
 		}
 	}
 
 	switch next[0] {
 	case '[':
-		s.openBracket(squareBracketIndex, prev)
+		s.openBracket(squareBracketIndex)
 	case ']':
-		s.closeBracket(squareBracketIndex, prev)
+		s.closeBracket(squareBracketIndex)
 	case '(':
-		s.openBracket(parenthesesIndex, prev)
+		s.openBracket(parenthesesIndex)
 	case ')':
-		s.closeBracket(parenthesesIndex, prev)
+		s.closeBracket(parenthesesIndex)
 	case '{':
-		s.openBracket(curlyBracketIndex, prev)
+		s.openBracket(curlyBracketIndex)
 	case '}':
-		s.closeBracket(curlyBracketIndex, prev)
+		s.closeBracket(curlyBracketIndex)
 	}
 
-	return s, s.Take(1)
+	return s, types.VisitResult{InnerLength: 1}
 }
 
-func (s *codeVisitor) openBracket(bracketIndex BracketIndex, prev []byte) {
-	s.nestedBrackets[bracketIndex] = append(s.nestedBrackets[bracketIndex], len(prev))
+func (s *codeVisitor) SegmentType() types.SegmentType {
+	return types.SegmentTypeCode
 }
 
-func (s *codeVisitor) closeBracket(bracketIndex BracketIndex, prev []byte) {
-	if len(s.nestedBrackets[bracketIndex]) > 0 {
-		openIndex := int32(s.nestedBrackets[bracketIndex][len(s.nestedBrackets[bracketIndex])-1])
-		closeIndex := int32(len(prev))
+func (s *codeVisitor) openBracket(bracketIndex BracketIndex) {
+	s.nestedBrackets[bracketIndex]++
+}
 
-		s.f.brackets = append(s.f.brackets, bracketPair{
-			OpenedAt: openIndex,
-			ClosedAt: closeIndex,
-		})
-
-		s.nestedBrackets[bracketIndex] = s.nestedBrackets[bracketIndex][:len(s.nestedBrackets[bracketIndex])-1]
+func (s *codeVisitor) closeBracket(bracketIndex BracketIndex) {
+	if s.nestedBrackets[bracketIndex] > 0 {
+		s.nestedBrackets[bracketIndex]--
 	}
 }
 

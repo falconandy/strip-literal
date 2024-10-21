@@ -2,12 +2,12 @@ package types
 
 type VisitorFactory interface {
 	BestPrefixLen(next, prev []byte) int
-	CreateVisitor(prefix []byte) SegmentVisitor
+	CreateVisitor(prefix, next []byte) SegmentVisitor
 }
 
 type CodeFactory interface {
 	VisitorFactory
-	CreateStringTemplateVisitor(templatePrefix, templatePostfix []byte) SegmentVisitor
+	CreateStringTemplateVisitor(templatePostfix []byte) SegmentVisitor
 }
 
 type StringFactory interface {

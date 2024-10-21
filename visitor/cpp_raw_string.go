@@ -1,21 +1,27 @@
 package visitor
 
 import (
-	"bytes"
-
 	"github.com/falconandy/strip-literal/types"
 )
 
+var (
+	cppRawStringPostfixPrefix  = []byte{')'}
+	cppRawStringPostfixPostfix = []byte{'"'}
+)
+
 type cppRawStringVisitor struct {
-	*baseVisitor
 	postfix []byte
 }
 
-func (s *cppRawStringVisitor) Visit(next, _ []byte) (types.SegmentVisitor, int) {
-	postfixIndex := bytes.Index(next, s.postfix)
-	if postfixIndex < 0 {
-		return nil, s.Take(len(next))
+func (s *cppRawStringVisitor) Visit(next, _ []byte) (types.SegmentVisitor, types.VisitResult) {
+	index := FindSubData(next, cppRawStringPostfixPrefix, s.postfix, cppRawStringPostfixPostfix)
+	if index >= 0 {
+		return nil, types.VisitResult{InnerLength: index, PostfixLength: len(s.postfix) + 2}
 	}
 
-	return nil, s.Take(postfixIndex) + s.TakePostfix(len(s.postfix))
+	return nil, types.VisitResult{InnerLength: len(next)}
+}
+
+func (s *cppRawStringVisitor) SegmentType() types.SegmentType {
+	return types.SegmentTypeString
 }

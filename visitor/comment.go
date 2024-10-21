@@ -7,43 +7,49 @@ import (
 )
 
 type singleLineCommentVisitor struct {
-	*baseVisitor
 }
 
-func (s *singleLineCommentVisitor) Visit(next, _ []byte) (types.SegmentVisitor, int) {
+func (s *singleLineCommentVisitor) Visit(next, _ []byte) (types.SegmentVisitor, types.VisitResult) {
 	newLineIndex := bytes.IndexAny(next, "\n\r")
 	if newLineIndex < 0 {
-		return nil, s.Take(len(next))
+		return nil, types.VisitResult{InnerLength: len(next)}
 	}
 
-	return nil, s.Take(newLineIndex)
+	return nil, types.VisitResult{InnerLength: newLineIndex}
+}
+
+func (s *singleLineCommentVisitor) SegmentType() types.SegmentType {
+	return types.SegmentTypeCommentSingleLine
 }
 
 type multiLineCommentVisitor struct {
-	*baseVisitor
 	prefix          []byte
 	postfix         []byte
 	supportsNesting bool
 	nestLevel       int
 }
 
-func (s *multiLineCommentVisitor) Visit(next, _ []byte) (types.SegmentVisitor, int) {
+func (s *multiLineCommentVisitor) Visit(next, _ []byte) (types.SegmentVisitor, types.VisitResult) {
 	switch {
 	case bytes.HasPrefix(next, s.prefix):
 		if s.supportsNesting {
 			s.nestLevel++
 		}
 
-		return s, s.Take(len(s.prefix))
+		return s, types.VisitResult{InnerLength: len(s.prefix)}
 	case bytes.HasPrefix(next, s.postfix):
 		if s.nestLevel > 0 {
 			s.nestLevel--
 
-			return s, s.Take(len(s.postfix))
+			return s, types.VisitResult{InnerLength: len(s.postfix)}
 		}
 
-		return nil, s.TakePostfix(len(s.postfix))
+		return nil, types.VisitResult{PostfixLength: len(s.postfix)}
 	default:
-		return s, s.Take(1)
+		return s, types.VisitResult{InnerLength: 1}
 	}
+}
+
+func (s *multiLineCommentVisitor) SegmentType() types.SegmentType {
+	return types.SegmentTypeCommentMultiLine
 }

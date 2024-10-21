@@ -32,11 +32,10 @@ func (f *stringFactory) BestPrefixLen(next, _ []byte) int {
 	return bestPrefixLen
 }
 
-func (f *stringFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {
+func (f *stringFactory) CreateVisitor(prefix []byte, _ []byte) types.SegmentVisitor {
 	definition := f.findDefinition(prefix)
 
 	return &stringVisitor{
-		baseVisitor:   newBaseVisitor(types.SegmentTypeString, len(prefix)),
 		definition:    definition,
 		codeFactory:   f.codeFactory,
 		pendingPrefix: nil,

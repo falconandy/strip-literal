@@ -12,9 +12,8 @@ const (
 
 type Segment struct {
 	Type          SegmentType
-	Position      int32
-	Length        int32
 	PrefixLength  int32
+	InnerLength   int32
 	PostfixLength int32
 }
 
@@ -28,4 +27,8 @@ func (s Segment) IsString() bool {
 
 func (s Segment) IsRegexp() bool {
 	return s.Type == SegmentTypeRegexp
+}
+
+func (s Segment) Length() int32 {
+	return s.PrefixLength + s.InnerLength + s.PostfixLength
 }

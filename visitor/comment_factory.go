@@ -24,10 +24,8 @@ func (f *singleLineFactory) BestPrefixLen(next, _ []byte) int {
 	return 0
 }
 
-func (f *singleLineFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {
-	return &singleLineCommentVisitor{
-		baseVisitor: newBaseVisitor(types.SegmentTypeCommentSingleLine, len(prefix)),
-	}
+func (f *singleLineFactory) CreateVisitor([]byte, []byte) types.SegmentVisitor {
+	return &singleLineCommentVisitor{}
 }
 
 func NewMultiLineCommentFactory(prefix, postfix string, supportsNesting bool) types.VisitorFactory {
@@ -52,9 +50,8 @@ func (f *multiLineCommentFactory) BestPrefixLen(next, _ []byte) int {
 	return 0
 }
 
-func (f *multiLineCommentFactory) CreateVisitor(prefix []byte) types.SegmentVisitor {
+func (f *multiLineCommentFactory) CreateVisitor([]byte, []byte) types.SegmentVisitor {
 	return &multiLineCommentVisitor{
-		baseVisitor:     newBaseVisitor(types.SegmentTypeCommentMultiLine, len(prefix)),
 		prefix:          f.prefix,
 		postfix:         f.postfix,
 		supportsNesting: f.supportsNesting,

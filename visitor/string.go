@@ -7,48 +7,49 @@ import (
 )
 
 type stringVisitor struct {
-	*baseVisitor
 	definition    types.StringDefinition
 	codeFactory   types.CodeFactory
 	pendingPrefix []byte
 }
 
-func (s *stringVisitor) Visit(next, _ []byte) (types.SegmentVisitor, int) {
+func (s *stringVisitor) Visit(next, _ []byte) (types.SegmentVisitor, types.VisitResult) {
 	if len(s.pendingPrefix) > 0 {
 		pendingPrefix := s.pendingPrefix
 		s.pendingPrefix = nil
 
 		if bytes.HasPrefix(next, pendingPrefix) {
-			return s, s.TakePrefix(len(pendingPrefix))
+			return s, types.VisitResult{PrefixLength: len(pendingPrefix)}
 		}
 	}
 
 	for _, skip := range s.definition.Skip {
 		if bytes.HasPrefix(next, skip) {
-			return s, s.Take(len(skip))
+			return s, types.VisitResult{InnerLength: len(skip)}
 		}
 	}
 
 	if !s.definition.Multiline {
 		if next[0] == '\n' || next[0] == '\r' {
-			return nil, 0
+			return nil, types.VisitResult{}
 		}
 	}
 
-	if bytes.HasPrefix(next, s.definition.Postfix) {
-		return nil, s.TakePostfix(len(s.definition.Postfix))
+	if len(s.definition.Postfix) > 0 && bytes.HasPrefix(next, s.definition.Postfix) {
+		return nil, types.VisitResult{PostfixLength: len(s.definition.Postfix)}
 	}
 
 	if len(s.definition.TemplatePrefix) > 0 {
 		if bytes.HasPrefix(next, s.definition.TemplatePrefix) {
 			s.pendingPrefix = s.definition.TemplatePostfix
 
-			return s.codeFactory.CreateStringTemplateVisitor(
-					s.definition.TemplatePrefix,
-					s.definition.TemplatePostfix),
-				s.TakePostfix(len(s.definition.TemplatePrefix))
+			return s.codeFactory.CreateStringTemplateVisitor(s.definition.TemplatePostfix),
+				types.VisitResult{PostfixLength: len(s.definition.TemplatePrefix)}
 		}
 	}
 
-	return s, s.Take(1)
+	return s, types.VisitResult{InnerLength: 1}
+}
+
+func (s *stringVisitor) SegmentType() types.SegmentType {
+	return types.SegmentTypeString
 }
