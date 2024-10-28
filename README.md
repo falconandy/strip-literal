@@ -15,7 +15,7 @@ Supported languages:
 * Python
 * Swift
 
-[Online demo](https://falconandy.github.io/strip-literal/) (WASM version, compiled by TinyGo 0.33)
+[Online demo](https://falconandy.github.io/strip-literal/) (WASM version, compiled by TinyGo 0.34)
 
 ## Usage
 
